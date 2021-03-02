@@ -1,31 +1,39 @@
-from copy import deepcopy
+"""
+Trie.py - Data structures for storing unique sequences of music21 objects
+
+PitchTrie - A way to store and retrieve unique pitch sequences
+"""
 
 
-class NoteTrie:
+class PitchTrie:
 
+    pitches = []
     children = []
 
-    def __init__(self, flat, index, note=None):
-        self.index = index
-        if note:
-            self.note = note
-            self.flat = flat
-        else:
-            rootFlat = deepcopy(flat)
-            self.note = rootFlat.pop(0)
-            self.flat = rootFlat
-        self.insert()
+    def __init__(self, pitches):
+        self.pitches = pitches
+        self.insert(pitches[1:])
 
-    def insert(self):
-        childIndex = self.index
-        if len(self.flat) == 0:
+    def search(self, pitch):
+        index = -1
+        for child in self.children:
+            index += 1
+            if child.pitches[0] == pitch:
+                return index
+        return index
+
+    def insert(self, pitches):
+        if len(pitches) == 0:
             return
-        for note in self.flat:
-            childIndex += 1
-            rootFlat = deepcopy(self.flat)
-            note = rootFlat.pop(0)
-            self.children.append(NoteTrie(rootFlat, childIndex, note))
+        index = self.search(pitches[0])
+        if index == -1 or index == len(pitches):
+            print("not found")
+            self.children.append(PitchTrie(pitches))
+        else:
+            print("found")
+            self.children[index].insert(pitches[1:])
 
-    def search(self):
-        # BFS all of the nodes
-        pass
+    def draw(self):
+        print(self.pitches)
+        for child in self.children:
+            child.draw()
