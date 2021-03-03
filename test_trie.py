@@ -1,7 +1,7 @@
 from unittest import TestCase
 from trie import PitchTrie
 from random import choice
-
+from copy import deepcopy
 allPitches = ["A", "B", "C", "D", "E", "F", "G"]
 allAccidentals = ["#", "-", ""]
 allOctaves = ["1", "2", "3", "4", "5", "6", "7"]
@@ -19,11 +19,10 @@ def randomPitches(number):
 class Test_PitchTrie(TestCase):
     def test_init(self):
         pitches = randomPitches(5)
+        single = deepcopy(pitches)
+        pitches.extend(pitches)
         print("Pitch Sequence: " + str(pitches))
-        pitchTrie = PitchTrie(pitches)
-        pitchTrie.draw()
-        pass
-
-    def test_search(self):
-
-        pass
+        print("single: ", single)
+        pitchTrie = PitchTrie()
+        pitchTrie.insert(pitches)
+        print(pitchTrie.query(single))

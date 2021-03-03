@@ -5,35 +5,45 @@ PitchTrie - A way to store and retrieve unique pitch sequences
 """
 
 
-class PitchTrie:
+class PitchTrieNode:
+    def __init__(self, pitch):
+        self.pitch = pitch
+        self.is_end = False
+        self.count = 0
+        self.children = {}
 
-    pitches = []
-    children = []
 
-    def __init__(self, pitches):
-        self.pitches = pitches
-        self.insert(pitches[1:])
-
-    def search(self, pitch):
-        index = -1
-        for child in self.children:
-            index += 1
-            if child.pitches[0] == pitch:
-                return index
-        return index
+class PitchTrie(object):
+    def __init__(self):
+        self.root = PitchTrieNode("")
 
     def insert(self, pitches):
-        if len(pitches) == 0:
-            return
-        index = self.search(pitches[0])
-        if index == -1 or index == len(pitches):
-            print("not found")
-            self.children.append(PitchTrie(pitches))
-        else:
-            print("found")
-            self.children[index].insert(pitches[1:])
+        node = self.root
+        for pitch in pitches:
+            if pitch in node.children:
+                node = node.children[pitch]
+            else:
+                new_node = PitchTrieNode(pitch)
+                node.children[pitch] = new_node
+                node = new_node
+        node.is_end = True
+        node.count += 1
 
-    def draw(self):
-        print(self.pitches)
-        for child in self.children:
-            child.draw()
+    def search(self, node, prefix):
+        if node.is_end:
+            prefix.append(node.pitch)
+            self.output.append((prefix, node.count))
+        for child in node.children.values():
+            prefix.append(node.pitch)
+            self.search(child, prefix)
+
+    def query(self, prefix):
+        self.output = []
+        node = self.root
+        for pitch in prefix:
+            if pitch in node.children:
+                node = node.children[pitch]
+            else:
+                return []
+        self.search(node, prefix[:-1])
+        return sorted(self.output, key=lambda x: x[1], reverse=True)
